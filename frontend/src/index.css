@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-zinc-950 text-zinc-100 antialiased;
+}
+
+/* Style the Zoom (+ / - / Lock) Toolbar */
+.react-flow__controls {
+  @apply !bg-zinc-950/80 !backdrop-blur-xl !border !border-zinc-800 !rounded-xl !overflow-hidden !shadow-[0_8px_32px_rgba(0,0,0,0.6)] !p-1 !m-6;
+}
+
+.react-flow__controls-button {
+  @apply !bg-transparent !border-b !border-zinc-800/50 !text-zinc-400 hover:!bg-zinc-800/80 hover:!text-emerald-400 !transition-all !w-9 !h-9 !flex !items-center !justify-center;
+}
+
+.react-flow__controls-button:last-child {
+  @apply !border-b-0;
+}
+
+.react-flow__controls-button svg {
+  @apply !fill-current !w-4 !h-4;
+}
+
+/* Style the MiniMap Box */
+.react-flow__minimap {
+  @apply !bg-zinc-950/80 !backdrop-blur-xl !border !border-zinc-800 !rounded-2xl !overflow-hidden !shadow-[0_8px_32px_rgba(0,0,0,0.6)] !m-6;
+}
+
+/* Selected Edge Glow States */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #10b981 !important; /* Deeper Emerald for focus contrast */
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 1)) drop-shadow(0 0 24px rgba(16, 185, 129, 0.8));
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+}
+
+/* Smooth connection line styling while dragging a path between handles */
+.react-flow__connection-path {
+  stroke: #10b981 !important;
+  stroke-width: 2px !important;
+  stroke-dasharray: 5;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 10;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
