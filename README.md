@@ -7,9 +7,18 @@ A production-grade, full-stack visual node editor designed for orchestrating mul
 * **Backend Cycle Detection:** Powered by a Python/FastAPI backend utilizing a Depth-First Search (DFS) algorithm to proactively catch circular dependencies, preventing infinite LLM execution loops.
 * **Decoupled Node Abstraction:** Engineered a single `BaseNode` wrapper to handle all styling, state management, and React Flow mappings, keeping the UI completely decoupled from business logic.
 
+## 🏢 Enterprise AI Governance Upgrades
+* **Policy Enforcement Point (Guardrail Node):** Strict data compliance and latency constraint configurations.
+* **Pre-Flight Token & Cost Auditing:** A real-time overlay widget analyzing node combinations to project execution costs against global budgets, throwing 403 Forbidden on budget breaches.
+* **Structured Telemetry Terminal:** JSON-based streaming execution logs color-coded for distinct intent and governance tracking.
+* **Global Secrets Vault:** A dedicated, visually distinct secure drawer for managing API keys.
+* **Pipeline Version Control:** Built-in ability to commit the current pipeline state and restore previous graphs instantly from `localStorage`.
+* **Semantic Router & Sub-Flows:** Advanced conditional branching capabilities and dynamic Compound Bounding Box node groupings.
+* **Pydantic Validation Engine:** Robust backend schemas that validate every node and edge payload entering the system before calculation.
+
 ## 🛠️ Tech Stack
-* **Frontend:** React, Next.js, Tailwind, React Flow
-* **Backend:** Python, FastAPI, Uvicorn
+* **Frontend:** React, Tailwind, React Flow, Zustand, Lucide-React
+* **Backend:** Python, FastAPI, Uvicorn, Pydantic
 * **Algorithms:** Depth-First Search (DFS), Regex Tokenization
 
 ## 🎥 Demo
