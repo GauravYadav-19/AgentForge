@@ -13,7 +13,7 @@ A production-grade, full-stack visual node editor designed for orchestrating mul
 * **Algorithms:** Depth-First Search (DFS), Regex Tokenization
 
 ## 🎥 Demo
-[PLACEHOLDER: Insert Demo GIF/Video Link Here]
+https://drive.google.com/file/d/14xbLRm7gpGjf6nhB8gKDlV_2OnEbwK6t/view?usp=sharing
 
 ## ⚙️ Local Setup
 ### Prerequisites
