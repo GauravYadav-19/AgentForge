@@ -34,6 +34,7 @@ export const AgentNode = ({ id, data, selected }) => {
           value={persona} 
           onChange={handlePersonaChange} 
           rows="3"
+          style={{ minHeight: '100px', resize: 'vertical' }}
           className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </label>

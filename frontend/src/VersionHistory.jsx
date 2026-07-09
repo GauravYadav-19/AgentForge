@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { History, Save, RotateCcw, X, Clock } from 'lucide-react';
+import { History, Save, RotateCcw, X, Clock, Trash2 } from 'lucide-react';
 
 export const VersionHistory = ({ nodes, edges, setNodes, setEdges, isOpen, setIsOpen }) => {
   const [history, setHistory] = useState([]);
+  const [selectedCommits, setSelectedCommits] = useState(new Set());
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('pipeline-history');
@@ -35,6 +36,25 @@ export const VersionHistory = ({ nodes, edges, setNodes, setEdges, isOpen, setIs
     }
   };
 
+  const deleteSelected = () => {
+    if (window.confirm(`Are you sure you want to permanently delete ${selectedCommits.size} selected version(s)?`)) {
+      const newHistory = history.filter(commit => !selectedCommits.has(commit.id));
+      setHistory(newHistory);
+      localStorage.setItem('pipeline-history', JSON.stringify(newHistory));
+      setSelectedCommits(new Set());
+    }
+  };
+
+  const toggleSelection = (id) => {
+    const newSelected = new Set(selectedCommits);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedCommits(newSelected);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -45,12 +65,23 @@ export const VersionHistory = ({ nodes, edges, setNodes, setEdges, isOpen, setIs
             <History className="w-5 h-5 text-emerald-500" />
             Version History
           </h2>
-          <button 
-            onClick={() => setIsOpen(false)} 
-            className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {selectedCommits.size > 0 && (
+              <button 
+                onClick={deleteSelected}
+                className="text-zinc-500 hover:text-red-400 transition-colors p-1"
+                title={`Delete ${selectedCommits.size} selected versions`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+            <button 
+              onClick={() => setIsOpen(false)} 
+              className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <button 
@@ -67,11 +98,23 @@ export const VersionHistory = ({ nodes, edges, setNodes, setEdges, isOpen, setIs
             </div>
           ) : (
             history.map((commit) => (
-              <div key={commit.id} className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 flex flex-col gap-2 hover:border-zinc-700 transition-colors">
+              <div 
+                key={commit.id} 
+                className={`rounded-lg border ${selectedCommits.has(commit.id) ? 'border-red-500/50 bg-red-500/5' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'} p-3 flex flex-col gap-2 transition-colors cursor-pointer`}
+                onClick={() => toggleSelection(commit.id)}
+              >
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
-                  <div className="flex items-center gap-1.5 text-emerald-400">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{commit.timestamp}</span>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedCommits.has(commit.id)}
+                      readOnly
+                      className="accent-red-500 cursor-pointer"
+                    />
+                    <div className="flex items-center gap-1.5 text-emerald-400">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{commit.timestamp}</span>
+                    </div>
                   </div>
                 </div>
                 
@@ -80,7 +123,7 @@ export const VersionHistory = ({ nodes, edges, setNodes, setEdges, isOpen, setIs
                     {commit.nodes.length} NODES • {commit.edges.length} EDGES
                   </div>
                   <button 
-                    onClick={() => restoreCommit(commit)}
+                    onClick={(e) => { e.stopPropagation(); restoreCommit(commit); }}
                     className="flex items-center gap-1 text-[10px] font-bold text-zinc-400 hover:text-emerald-400 transition-colors bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded"
                     title="Restore this version"
                   >

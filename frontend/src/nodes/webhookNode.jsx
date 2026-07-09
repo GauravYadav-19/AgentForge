@@ -7,10 +7,12 @@ import { useStore } from '../store';
 export const WebhookNode = ({ id, data, selected }) => {
   const [method, setMethod] = useState(data?.method || 'POST');
   const [url, setUrl] = useState(data?.url || 'https://');
+  const [headersJson, setHeadersJson] = useState(data?.headersJson || '');
   const updateNodeField = useStore((state) => state.updateNodeField);
 
   const handles = [
-    { type: 'source', position: Position.Right, id: `${id}-payload` }
+    { type: 'target', position: Position.Left, id: `${id}-input` },
+    { type: 'source', position: Position.Right, id: `${id}-output` }
   ];
 
   const handleMethodChange = (e) => {
@@ -21,6 +23,11 @@ export const WebhookNode = ({ id, data, selected }) => {
   const handleUrlChange = (e) => {
     setUrl(e.target.value);
     updateNodeField(id, 'url', e.target.value);
+  };
+
+  const handleHeadersChange = (e) => {
+    setHeadersJson(e.target.value);
+    updateNodeField(id, 'headersJson', e.target.value);
   };
 
   return (
@@ -38,6 +45,15 @@ export const WebhookNode = ({ id, data, selected }) => {
           type="text" 
           value={url} 
           onChange={handleUrlChange} 
+          className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </label>
+      <label className="flex flex-col text-xs text-zinc-400 gap-1">
+        Headers (JSON):
+        <textarea 
+          value={headersJson} 
+          onChange={handleHeadersChange} 
+          rows="2"
           className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </label>

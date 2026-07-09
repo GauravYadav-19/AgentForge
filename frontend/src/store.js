@@ -11,6 +11,8 @@ import {
 export const useStore = create((set, get) => ({
     nodes: [],
     edges: [],
+    budget: "1.0",
+    setBudget: (budget) => set({ budget }),
     getNodeID: (type) => {
         const newIDs = {...get().nodeIDs};
         if (newIDs[type] === undefined) {

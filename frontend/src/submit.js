@@ -1,6 +1,6 @@
 // submit.js
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from './store';
 import { Terminal } from './Terminal';
 import { SecretsVault } from './SecretsVault';
@@ -12,11 +12,20 @@ export const SubmitButton = () => {
     const edges = useStore((state) => state.edges);
     const setNodes = useStore((state) => state.setNodes);
     const setEdges = useStore((state) => state.setEdges);
+    const budget = useStore((state) => state.budget);
     
     const [logs, setLogs] = useState([]);
     const [isTerminalOpen, setIsTerminalOpen] = useState(false);
     const [isVaultOpen, setIsVaultOpen] = useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [secrets, setSecrets] = useState(() => {
+        const saved = localStorage.getItem('vault-secrets');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('vault-secrets', JSON.stringify(secrets));
+    }, [secrets]);
 
     const addLog = (logObj) => {
         const timestamp = new Date().toLocaleTimeString('en-US', { hour12: true });
@@ -31,6 +40,7 @@ export const SubmitButton = () => {
 
         // Validation Check 1: Empty Canvas
         if (nodes.length === 0) {
+            alert("Canvas is empty. Please add nodes before running the pipeline.");
             addLog({ level: 'ERROR', component: 'canvas', message: 'Canvas is empty. Pipeline aborted.' });
             return;
         }
@@ -47,19 +57,35 @@ export const SubmitButton = () => {
             addLog({ level: 'WARNING', component: 'canvas', message: 'Isolated nodes detected. Proceeding with caution.' });
         }
 
+        // Validation Check 3: Empty Webhook URLs
+        const invalidWebhooks = nodes.filter(n => n.type === 'webhook' && (!n.data.URL || n.data.URL.trim() === '' || n.data.URL === 'https://'));
+        if (invalidWebhooks.length > 0) {
+            alert("One or more API Webhook nodes are missing a valid URL. Please fix them before running.");
+            addLog({ level: 'ERROR', component: 'canvas', message: 'API Webhook missing valid URL. Pipeline aborted.' });
+            return;
+        }
+
         addLog({ level: 'INFO', component: 'pre-flight', message: 'Pre-flight validation passed. Sending payload to Policy Enforcement Point...' });
+
+        const secretsDict = secrets.reduce((acc, secret) => {
+            if (secret.key && secret.value) {
+                acc[secret.key] = secret.value.trim();
+            }
+            return acc;
+        }, {});
 
         const payload = {
             nodes,
             edges,
+            secrets: secretsDict,
             governance: {
-                max_budget: 0.1, // Fixed budget for demonstration
+                max_budget: parseFloat(budget || 0),
                 tier: "enterprise"
             }
         };
         
         try {
-            const response = await fetch('http://localhost:8000/pipelines/parse', {
+            const response = await fetch('http://localhost:8000/pipelines/execute', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,20 +99,26 @@ export const SubmitButton = () => {
                 return;
             }
 
-            // Simulate streaming delays
-            setTimeout(() => {
-                addLog({ level: 'DAG', component: 'graph', message: `Graph Parsed. Nodes: ${data.num_nodes}, Edges: ${data.num_edges}` });
-                addLog({ level: 'GOVERNANCE', component: 'budget', message: `Cost Analysis: Estimated cost is $${data.estimated_cost.toFixed(4)}. Governance Status: ${data.governance_status}` });
-                
+            addLog({ level: 'DAG', component: 'graph', message: `Execution Engine initialized. Path cleared.` });
+            
+            // Dispatch execution trace logs
+            if (data.trace && data.trace.length > 0) {
+                data.trace.forEach((t, i) => {
+                    setTimeout(() => {
+                        addLog({ level: t.level, component: t.component || 'engine', message: t.message });
+                    }, (i + 1) * 400); // Stagger logs for a streaming effect
+                });
+
+                // Dispatch final success log
                 setTimeout(() => {
-                    if (data.is_dag) {
-                        addLog({ level: 'DAG', component: 'verification', message: 'DFS verification: 0 cycles detected. Path cleared.' });
-                        addLog({ level: 'INTENT', component: 'system', message: 'System intent aligned with enterprise threshold. Execution SAFE.' });
-                    } else {
-                        addLog({ level: 'ERROR', component: 'verification', message: 'DFS verification: Circular dependency detected!' });
-                    }
-                }, 800);
-            }, 800);
+                    addLog({ level: 'SUCCESS', component: 'system', message: 'Pipeline executed successfully. Final states calculated.' });
+                    console.log("Final State:", data.final_state);
+                    alert("Pipeline Executed Successfully!");
+                }, (data.trace.length + 1) * 400);
+            } else {
+                addLog({ level: 'SUCCESS', component: 'system', message: 'Pipeline executed successfully, but no trace was returned.' });
+                alert("Pipeline Executed Successfully!");
+            }
 
         } catch (error) {
             console.error(error);
@@ -113,6 +145,22 @@ export const SubmitButton = () => {
                 </button>
                 <button 
                     type="button" 
+                    onClick={() => {
+                        const data = JSON.stringify({ nodes, edges }, null, 2);
+                        const blob = new Blob([data], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'aegisflow-pipeline.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }}
+                    className="rounded-md border border-emerald-600 px-4 py-2.5 text-sm font-semibold text-emerald-500 shadow-lg transition-all hover:bg-emerald-900/30 hover:scale-105"
+                >
+                    Export JSON
+                </button>
+                <button 
+                    type="button" 
                     onClick={handleSubmit} 
                     className="rounded-md bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition-all hover:bg-emerald-500 hover:scale-105"
                 >
@@ -120,7 +168,7 @@ export const SubmitButton = () => {
                 </button>
             </div>
             <Terminal logs={logs} isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(!isTerminalOpen)} />
-            <SecretsVault isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} />
+            <SecretsVault isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} secrets={secrets} setSecrets={setSecrets} />
             <VersionHistory 
                 nodes={nodes} 
                 edges={edges} 

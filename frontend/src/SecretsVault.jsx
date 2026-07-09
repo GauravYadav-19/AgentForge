@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Key, X, Eye, EyeOff, Plus } from 'lucide-react';
 
-export const SecretsVault = ({ isOpen, onClose }) => {
-  const [secrets, setSecrets] = useState([]);
+export const SecretsVault = ({ isOpen, onClose, secrets, setSecrets }) => {
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
   const [visibleSecrets, setVisibleSecrets] = useState({});

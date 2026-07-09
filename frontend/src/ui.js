@@ -198,7 +198,7 @@ export const PipelineUI = () => {
             {selectedNodes.length > 1 && (
                 <button 
                     onClick={handleGroupSelected}
-                    className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-40 flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-emerald-500"
+                    className="fixed top-24 left-1/2 transform -translate-x-1/2 z-40 flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-emerald-500 transition-all hover:scale-105"
                 >
                     Group Selected
                 </button>

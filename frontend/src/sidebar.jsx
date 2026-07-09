@@ -1,9 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   MessageSquare, ArrowRight, Type, 
   Cpu, FileText, Bot, 
   Database, Webhook, ChevronLeft, ChevronRight, Shield, GitMerge
 } from 'lucide-react';
+
+const SidebarItem = ({ item, onDragStart }) => {
+    const [hintPos, setHintPos] = useState(null);
+
+    const handleClick = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setHintPos({ top: rect.top + rect.height / 2, left: rect.right + 12 });
+        setTimeout(() => setHintPos(null), 2500);
+    };
+
+    const handleDragStart = (event) => {
+        setHintPos(null);
+        onDragStart(event, item.type);
+    };
+
+    return (
+        <>
+            <div
+                className="group cursor-grab mb-2 flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-sm font-medium text-zinc-300 transition-all hover:border-emerald-500 hover:bg-zinc-900 hover:text-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)] active:bg-zinc-800"
+                onDragStart={handleDragStart}
+                onDragEnd={(event) => (event.target.style.cursor = 'grab')}
+                onClick={handleClick}
+                draggable
+            >
+                <div className="flex items-center gap-3">
+                    <div className="text-zinc-500 transition-colors group-hover:text-emerald-400">{item.icon}</div>
+                    <span>{item.label}</span>
+                </div>
+            </div>
+            
+            {hintPos && (
+                <div 
+                    className="fixed z-[100] animate-pulse whitespace-nowrap rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xl flex items-center gap-1.5"
+                    style={{ top: hintPos.top, left: hintPos.left, transform: 'translateY(-50%)' }}
+                >
+                    <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 border-y-[6px] border-r-[6px] border-y-transparent border-r-emerald-600"></div>
+                    👆 Hold and drag me!
+                </div>
+            )}
+        </>
+    );
+};
 
 export const Sidebar = ({ isOpen, setIsOpen }) => {
     const onDragStart = (event, nodeType) => {
@@ -57,7 +99,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
 
             <div className={`relative flex flex-col h-full border-r border-zinc-800 bg-zinc-950 overflow-y-auto z-40 transition-all duration-300 shrink-0 ${isOpen ? 'w-72 p-5' : 'w-0 p-0 overflow-hidden border-r-0'}`}>
                 <div className="text-xl font-bold text-zinc-100 mb-8 tracking-tight whitespace-nowrap">
-                    Agentic Canvas
+                    AgentForge
                 </div>
 
                 {categories.map((category) => (
@@ -66,18 +108,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                         {category.name}
                     </div>
                     {category.items.map((item) => (
-                        <div
-                            key={item.type}
-                            className="group cursor-grab mb-2 flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-sm font-medium text-zinc-300 transition-all hover:border-emerald-500 hover:bg-zinc-900 hover:text-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                            onDragStart={(event) => onDragStart(event, item.type)}
-                            onDragEnd={(event) => (event.target.style.cursor = 'grab')}
-                            draggable
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="text-zinc-500 transition-colors group-hover:text-emerald-400">{item.icon}</div>
-                                <span>{item.label}</span>
-                            </div>
-                        </div>
+                        <SidebarItem key={item.type} item={item} onDragStart={onDragStart} />
                     ))}
                 </div>
             ))}

@@ -7,6 +7,7 @@ import { useStore } from '../store';
 export const VectorDbNode = ({ id, data, selected }) => {
   const [provider, setProvider] = useState(data?.provider || 'Pinecone');
   const [indexName, setIndexName] = useState(data?.indexName || '');
+  const [topK, setTopK] = useState(data?.topK || 3);
   const updateNodeField = useStore((state) => state.updateNodeField);
 
   const handles = [
@@ -25,6 +26,12 @@ export const VectorDbNode = ({ id, data, selected }) => {
     updateNodeField(id, 'indexName', e.target.value);
   };
 
+  const handleTopKChange = (e) => {
+    const val = parseInt(e.target.value, 10);
+    setTopK(val);
+    updateNodeField(id, 'topK', val);
+  };
+
   return (
     <BaseNode id={id} title="Vector DB" handles={handles} selected={selected}>
       <label className="flex flex-col text-xs text-zinc-400 gap-1">
@@ -41,6 +48,15 @@ export const VectorDbNode = ({ id, data, selected }) => {
           type="text" 
           value={indexName} 
           onChange={handleIndexNameChange} 
+          className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </label>
+      <label className="flex flex-col text-xs text-zinc-400 gap-1">
+        Top K:
+        <input 
+          type="number" 
+          value={topK} 
+          onChange={handleTopKChange} 
           className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </label>

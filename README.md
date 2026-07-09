@@ -1,4 +1,4 @@
-# Agentic Workflow Canvas 🧠
+# AgentForge 🧠
 A production-grade, full-stack visual node editor designed for orchestrating multi-agent AI pipelines, LLM prompts, and dynamic tool-calling.
 
 ## 🚀 Architecture & Core Features

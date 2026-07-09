@@ -10,8 +10,8 @@ export const LLMNode = ({ id, data, selected }) => {
   const updateNodeField = useStore((state) => state.updateNodeField);
 
   const handles = [
-    { type: 'target', position: Position.Left, id: `${id}-system`, style: { top: `${100/3}%` } },
-    { type: 'target', position: Position.Left, id: `${id}-prompt`, style: { top: `${200/3}%` } },
+    { type: 'target', position: Position.Left, id: `${id}-system-context`, style: { top: `${100/3}%` } },
+    { type: 'target', position: Position.Left, id: `${id}-user-prompt`, style: { top: `${200/3}%` } },
     { type: 'source', position: Position.Right, id: `${id}-response` }
   ];
 
@@ -43,7 +43,7 @@ export const LLMNode = ({ id, data, selected }) => {
           type="number" 
           step="0.1" 
           min="0" 
-          max="1" 
+          max="2" 
           value={temperature} 
           onChange={handleTempChange} 
           className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
