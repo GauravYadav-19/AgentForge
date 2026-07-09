@@ -85,7 +85,7 @@ export const SubmitButton = () => {
         };
 
         try {
-            const response = await fetch('https://agentforge-engine-abcd.onrender.com/pipelines/execute', {
+            const response = await fetch('https://agentforge-engine.onrender.com/pipelines/execute', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
