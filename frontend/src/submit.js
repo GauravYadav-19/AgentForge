@@ -13,7 +13,7 @@ export const SubmitButton = () => {
     const setNodes = useStore((state) => state.setNodes);
     const setEdges = useStore((state) => state.setEdges);
     const budget = useStore((state) => state.budget);
-    
+
     const [logs, setLogs] = useState([]);
     const [isTerminalOpen, setIsTerminalOpen] = useState(false);
     const [isVaultOpen, setIsVaultOpen] = useState(false);
@@ -35,7 +35,7 @@ export const SubmitButton = () => {
     const handleSubmit = async () => {
         setLogs([]);
         setIsTerminalOpen(true);
-        
+
         addLog({ level: 'AUDIT', component: 'pre-flight', message: 'Init pre-flight schema validation...' });
 
         // Validation Check 1: Empty Canvas
@@ -51,7 +51,7 @@ export const SubmitButton = () => {
             connectedNodeIds.add(edge.source);
             connectedNodeIds.add(edge.target);
         });
-        
+
         const isolatedNodes = nodes.filter(node => !connectedNodeIds.has(node.id));
         if (isolatedNodes.length > 0) {
             addLog({ level: 'WARNING', component: 'canvas', message: 'Isolated nodes detected. Proceeding with caution.' });
@@ -83,9 +83,9 @@ export const SubmitButton = () => {
                 tier: "enterprise"
             }
         };
-        
+
         try {
-            const response = await fetch('http://localhost:8000/pipelines/execute', {
+            const response = await fetch('https://agentforge-engine-abcd.onrender.com/pipelines/execute', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ export const SubmitButton = () => {
             }
 
             addLog({ level: 'DAG', component: 'graph', message: `Execution Engine initialized. Path cleared.` });
-            
+
             // Dispatch execution trace logs
             if (data.trace && data.trace.length > 0) {
                 data.trace.forEach((t, i) => {
@@ -129,22 +129,22 @@ export const SubmitButton = () => {
     return (
         <>
             <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
-                <button 
-                    type="button" 
-                    onClick={() => setIsHistoryOpen(true)} 
+                <button
+                    type="button"
+                    onClick={() => setIsHistoryOpen(true)}
                     className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:border-emerald-500 hover:text-emerald-400 shadow-lg"
                 >
                     <History className="w-4 h-4" /> History
                 </button>
-                <button 
-                    type="button" 
-                    onClick={() => setIsVaultOpen(true)} 
+                <button
+                    type="button"
+                    onClick={() => setIsVaultOpen(true)}
                     className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:border-emerald-500 hover:text-emerald-400 shadow-lg"
                 >
                     <Key className="w-4 h-4" /> Secrets Vault
                 </button>
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     onClick={() => {
                         const data = JSON.stringify({ nodes, edges }, null, 2);
                         const blob = new Blob([data], { type: 'application/json' });
@@ -159,9 +159,9 @@ export const SubmitButton = () => {
                 >
                     Export JSON
                 </button>
-                <button 
-                    type="button" 
-                    onClick={handleSubmit} 
+                <button
+                    type="button"
+                    onClick={handleSubmit}
                     className="rounded-md bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition-all hover:bg-emerald-500 hover:scale-105"
                 >
                     Run Pipeline
@@ -169,13 +169,13 @@ export const SubmitButton = () => {
             </div>
             <Terminal logs={logs} isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(!isTerminalOpen)} />
             <SecretsVault isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} secrets={secrets} setSecrets={setSecrets} />
-            <VersionHistory 
-                nodes={nodes} 
-                edges={edges} 
-                setNodes={setNodes} 
-                setEdges={setEdges} 
-                isOpen={isHistoryOpen} 
-                setIsOpen={setIsHistoryOpen} 
+            <VersionHistory
+                nodes={nodes}
+                edges={edges}
+                setNodes={setNodes}
+                setEdges={setEdges}
+                isOpen={isHistoryOpen}
+                setIsOpen={setIsHistoryOpen}
             />
         </>
     );
